@@ -54,8 +54,8 @@ requirements.txt
 
 ### 1️⃣ Clone the repo
 ```bash
-git clone https://github.com/yourusername/ai-financial-companion-backend.git
-cd ai-financial-companion-backend
+git clone https://github.com/azythromycin/Endless-Moments-AI-Financial-Companion.git
+cd into the repo
 ```
 
 ### 2️⃣ Install dependencies
@@ -191,22 +191,6 @@ curl -X POST http://localhost:8000/parse/ -F "file=@receipt.png"
 - **Receipt parser** uses EasyOCR to extract text from images and PDFs with smart field parsing.
 - **Expense tracking** automatically creates vendors, bills, and journal entries for proper double-entry accounting.
 - API is modular and ready to scale — receipt parsing and expense automation are fully integrated!  
-
----
-
-## 📍 Roadmap
-
-| Feature | Status |
-|----------|---------|
-| Database setup (Supabase) | ✅ Done |
-| User & Company CRUD | ✅ Done |
-| Link users ↔ companies | ✅ Done |
-| Manual Expense Entry | ✅ Done |
-| Receipt Parsing | ✅ Done |
-| Automated Journal Entries | ✅ Done (via expenses) |
-| AI-Enhanced Categorization | 🔜 Planned |
-| RAG Document Indexing | 🔜 Planned |
-| Real-time Financial Insights | 🔜 Planned |
 
 ---
 
