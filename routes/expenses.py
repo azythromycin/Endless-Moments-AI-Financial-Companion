@@ -4,6 +4,28 @@ from datetime import datetime
 
 router = APIRouter(prefix="/expenses", tags=["Expenses"])
 
+# Get all expenses (bills with vendor info)
+@router.get("/")
+def get_all_expenses():
+    """Get all expenses (bills) with vendor information."""
+    try:
+        response = table("bills").select("*, vendors(name)").execute()
+        return {"status": "success", "data": response.data}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# Get expenses for a specific company
+@router.get("/company/{company_id}")
+def get_company_expenses(company_id: str):
+    """Get all expenses for a specific company."""
+    try:
+        response = table("bills").select("*, vendors(name)").eq("company_id", company_id).execute()
+        return {"status": "success", "data": response.data}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 # Create a manual expense
 @router.post("/manual_entry")
 def create_expense(expense: dict):
