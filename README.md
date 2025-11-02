@@ -13,9 +13,8 @@ laying the foundation for future AI features like journal automation, OCR receip
 - **Uvicorn** – ASGI web server for FastAPI  
 - **python-dotenv** – Manages environment variables  
 - **Supabase Python SDK** – Database queries and joins  
-- **Tesseract OCR** – Optical character recognition for receipt parsing  
-- **SQLAlchemy** – ORM for OCR data persistence  
-- **Pillow** – Image processing for OCR  
+- **EasyOCR** – Deep learning-based OCR for text extraction  
+- **Pillow** – Image processing library  
 - **PyPDF** – PDF document handling  
 
 ---
