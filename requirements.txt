@@ -1,0 +1,10 @@
+fastapi
+uvicorn[standard]
+python-dotenv
+supabase
+pandas
+pdfminer.six
+pdf2image
+easyocr
+pillow
+python-multipart
