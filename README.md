@@ -25,13 +25,14 @@ laying the foundation for future AI features like journal automation, OCR receip
 ```
 main.py
 database.py
+smart_parser.py
 requirements.txt
 .env
 /routes
     ├── users.py
     ├── companies.py
     ├── expenses.py
-    └── ocr.py
+    └── parser.py
 ```
 
 ### What each file does
@@ -40,12 +41,13 @@ requirements.txt
 |------|----------|
 | `main.py` | Runs the FastAPI server and connects all routes |
 | `database.py` | Handles connection to Supabase |
+| `smart_parser.py` | OCR text extraction and field parsing logic |
 | `requirements.txt` | Lists all Python dependencies |
 | `.env` | Stores the Supabase URL and service key |
 | `/routes/users.py` | Handles user creation, editing, and linking to companies |
 | `/routes/companies.py` | Handles company creation, editing, and linking users |
-| `/routes/expenses.py` | Handles manual expense entry with journal entries |
-| `/routes/ocr.py` | Handles OCR receipt upload and data extraction |
+| `/routes/expenses.py` | Handles manual expense entry with journal entries and listing |
+| `/routes/parser.py` | Handles receipt parsing (images, PDFs, CSV) |
 
 ---
 
@@ -62,18 +64,16 @@ cd ai-financial-companion-backend
 pip install -r requirements.txt
 ```
 
-Or manually:
+**Install EasyOCR (for receipt parsing):**
 ```bash
-pip install fastapi uvicorn python-dotenv supabase sqlalchemy pytesseract pillow pdfminer.six pypdfium2 python-multipart python-dateutil
-```
+# EasyOCR dependencies
+pip install easyocr pillow pdf2image
 
-**Install Tesseract OCR:**
-```bash
-# Ubuntu/Debian
-sudo apt-get install tesseract-ocr
+# Ubuntu/Debian - Install Poppler for PDF processing
+sudo apt-get install poppler-utils
 
-# macOS
-brew install tesseract
+# macOS - Install Poppler
+brew install poppler
 ```
 
 ### 3️⃣ Add your environment variables
@@ -82,12 +82,6 @@ Create a `.env` file in the root:
 # Supabase Configuration
 SUPABASE_URL=https://yourproject.supabase.co
 SUPABASE_KEY=your_service_role_key
-
-# OCR Configuration (optional - these are defaults)
-OCR_ENGINE=tesseract
-DATABASE_URL=sqlite:///./receipts.db
-DEFAULT_CURRENCY=USD
-MAX_PDF_PAGES=10
 ```
 
 > ⚠️ Use the **service_role key** from Supabase — it allows full backend access (don't expose it publicly).
@@ -135,6 +129,8 @@ Swagger docs:
 ### 💰 Expenses (`/expenses`)
 | Method | Endpoint | Description |
 |--------|-----------|-------------|
+| GET | `/expenses/` | Get all expenses (bills with vendor info) |
+| GET | `/expenses/company/{company_id}` | Get expenses for a specific company |
 | POST | `/expenses/manual_entry` | Create a manual expense with automatic vendor linking, bill creation, and journal entry |
 
 **Example Request:**
@@ -153,34 +149,20 @@ Swagger docs:
 
 ---
 
-### 📄 OCR Receipt Processing (`/ocr`)
+### 📄 Receipt Parser (`/parse`)
 | Method | Endpoint | Description |
 |--------|-----------|-------------|
-| POST | `/ocr/upload` | Upload a receipt image or PDF for processing |
-| POST | `/ocr/extract?raw_id={id}&commit={bool}` | Extract data from uploaded receipt using OCR |
-| GET | `/ocr/receipt/{raw_id}` | Get metadata about an uploaded receipt |
-
-**OCR Workflow:**
-1. **Upload** a receipt image (PNG, JPEG) or PDF → Returns `raw_id`
-2. **Extract** data using Tesseract OCR → Returns structured fields
-3. Optionally **commit** to create a transaction record automatically
+| POST | `/parse/` | Parse receipt image, PDF, or CSV and extract structured data |
 
 **Extracted Fields:**
 - Vendor name
 - Transaction date
 - Total amount
-- Tax amount
-- Currency (USD, EUR, GBP, INR, CAD, AUD)
-- Payment card last 4 digits
-- Confidence score (0-100)
+- Description
 
 **Example Usage:**
 ```bash
-# Upload receipt
-curl -X POST http://localhost:8000/ocr/upload -F "file=@receipt.png"
-
-# Extract data
-curl -X POST "http://localhost:8000/ocr/extract?raw_id=abc-123&commit=false"
+curl -X POST http://localhost:8000/parse/ -F "file=@receipt.png"
 ```
 
 ---
@@ -207,10 +189,9 @@ curl -X POST "http://localhost:8000/ocr/extract?raw_id=abc-123&commit=false"
 
 - Backend uses the **Service Role key** — only for secure backend environments.  
 - Database joins use **Supabase's PostgREST** syntax like `select("*, users(full_name, email)")`.  
-- **OCR Pipeline** uses a separate SQLite database by default (`receipts.db`) for receipt data.
-- **Tesseract OCR** automatically detects and extracts text from receipts with smart field parsing.
+- **Receipt parser** uses EasyOCR to extract text from images and PDFs with smart field parsing.
 - **Expense tracking** automatically creates vendors, bills, and journal entries for proper double-entry accounting.
-- API is modular and ready to scale — OCR and expense automation are now fully integrated!  
+- API is modular and ready to scale — receipt parsing and expense automation are fully integrated!  
 
 ---
 
@@ -222,7 +203,7 @@ curl -X POST "http://localhost:8000/ocr/extract?raw_id=abc-123&commit=false"
 | User & Company CRUD | ✅ Done |
 | Link users ↔ companies | ✅ Done |
 | Manual Expense Entry | ✅ Done |
-| OCR Receipt Parsing | ✅ Done |
+| Receipt Parsing | ✅ Done |
 | Automated Journal Entries | ✅ Done (via expenses) |
 | AI-Enhanced Categorization | 🔜 Planned |
 | RAG Document Indexing | 🔜 Planned |
