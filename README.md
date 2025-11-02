@@ -1,4 +1,4 @@
-# 🧠 AI Financial Companion — Backend (FastAPI + Supabase)
+# AI Financial Companion — Backend (FastAPI + Supabase)
 
 This is the backend for **Endless Moments LLC’s AI Financial Companion App**.  
 It connects a **FastAPI** backend with **Supabase (PostgreSQL)** to manage companies, users, and financial data —
